@@ -29,7 +29,7 @@ module.exports = {
 
             const date = await new Date(data.created)
 
-            await interaction.editReply(`User "${data.displayName}" (${data.name}) joined ROBLOX on ${date.getMonth()}/${date.getDate()}/${date.getFullYear()}.`)
+            await interaction.editReply(`User "${data.displayName}" (${data.name}) joined ROBLOX on ${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}.`)
         } catch (error) {
             console.error(error);
             await interaction.editReply({

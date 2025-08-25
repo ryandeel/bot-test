@@ -17,7 +17,9 @@ for (const folder of commandFolders) {
 		const filePath = path.join(commandsPath, file);
 		const command = require(filePath);
 		if ('data' in command && 'execute' in command) {
-			commands.push(command.data.toJSON());
+            const cmdJson = command.data.toJSON();
+            cmdJson.dm_permission = true;
+			commands.push(cmdJson);
 		} else {
 			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
 		}
