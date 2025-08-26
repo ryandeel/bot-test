@@ -4,7 +4,7 @@ const { fetch } = require('undici');
 module.exports = {
     category: 'utility',
     data: new SlashCommandBuilder()
-        .setName('joindate')
+        .setName('joineduserid')
         .setDescription(`Checks the user's join date by userid!`)
         .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
         .addIntegerOption(option =>
@@ -28,7 +28,7 @@ module.exports = {
                 });
             }
 
-            const date = await new Date(data.created)
+            const date = new Date(data.created)
 
             await interaction.editReply(`User "${data.displayName}" (${data.name}) joined ROBLOX on ${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}.`)
         } catch (error) {
