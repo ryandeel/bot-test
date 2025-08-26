@@ -17,9 +17,7 @@ for (const folder of commandFolders) {
 		const filePath = path.join(commandsPath, file);
 		const command = require(filePath);
 		if ('data' in command && 'execute' in command) {
-            const cmdJson = command.data.toJSON();
-            cmdJson.dm_permission = true;
-			commands.push(cmdJson);
+			commands.push(command.data.toJSON());
 		} else {
 			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
 		}
@@ -31,19 +29,18 @@ const rest = new REST().setToken(token);
 
 // and deploy your commands!
 (async () => {
-  try {
-    console.log(`Started refreshing ${commands.length} application (/) commands.`);
+	try {
+		console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-    for (const command of commands) {
-      await rest.post(
-        Routes.applicationCommands(clientId),
-        { body: command },
-      );
-      console.log(`Registered command ${command.name}`);
-    }
+		// The put method is used to fully refresh all commands in the guild with the current set
+		const data = await rest.put(
+			Routes.applicationCommands(clientId),
+			{ body: commands },
+		);
 
-    console.log(`Successfully registered ${commands.length} application (/) commands.`);
-  } catch (error) {
-    console.error(error);
-  }
+		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+	} catch (error) {
+		// And of course, make sure you catch and log any errors!
+		console.error(error);
+	}
 })();

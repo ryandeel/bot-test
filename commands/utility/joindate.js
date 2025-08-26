@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, ApplicationIntegrationType, InteractionContextType } = require('discord.js');
 const { fetch } = require('undici');
 
 module.exports = {
@@ -6,6 +6,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('joindate')
         .setDescription(`Checks the user's join date by userid!`)
+        .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
         .addIntegerOption(option =>
             option.setName('userid')
                 .setDescription(`The user's profile ID.`)
