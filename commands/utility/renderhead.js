@@ -4,12 +4,12 @@ const { fetch } = require('undici');
 module.exports = {
     category: 'utility',
     data: new SlashCommandBuilder()
-        .setName('joined')
-        .setDescription(`Checks the user's join date by username! (must be exact)`)
+        .setName('renderhead')
+        .setDescription(`Render the user's head by username! (must be exact)`)
         .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
         .addStringOption(option =>
             option.setName('username')
-                .setDescription(`The user's username (searching display name may return inaccurate results)`)
+                .setDescription(`The user's display/name (note display name may not return who you're looking for)`)
                 .setRequired(true)
                 .setMinLength(3)
                 .setMaxLength(20)
