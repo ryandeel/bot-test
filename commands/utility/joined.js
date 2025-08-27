@@ -5,11 +5,11 @@ module.exports = {
     category: 'utility',
     data: new SlashCommandBuilder()
         .setName('joined')
-        .setDescription(`Checks the user's join date by username!`)
+        .setDescription(`Checks the user's join date by username! (must be exact)`)
         .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
         .addStringOption(option =>
             option.setName('username')
-                .setDescription(`The user's display/name (note display name may not return who you're looking for)`)
+                .setDescription(`The user's username (searching display name may return inaccurate results)`)
                 .setRequired(true)
                 .setMinLength(3)
                 .setMaxLength(20)
@@ -40,8 +40,23 @@ module.exports = {
                     ephemeral: true
                 });
             }
+            
+            let userCheck = null;
 
-            const userId = searchData.data[0].id;
+            for(let user of searchData.data) {
+               if(user.name.trim() == input){
+                userCheck = user;
+                break;
+               }
+            }
+
+            if(!userCheck){
+                return await interaction.editReply({
+                    content: "Unable to find user, search is case sensitive."
+                });
+            }
+
+            const userId = userCheck.id;
 
             const userCall = await fetch(`https://users.roblox.com/v1/users/${userId}`);
             const userData = await userCall.json();
@@ -61,7 +76,7 @@ module.exports = {
             await interaction.editReply({
                 content: "Couldn't reach ROBLOX API.",
                 ephemeral: true
-        });
+            });
         }
     },
 };
