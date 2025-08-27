@@ -1,15 +1,15 @@
-const { SlashCommandBuilder, ApplicationIntegrationType, InteractionContextType } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, InteractionContextType } = require('discord.js');
 const { fetch } = require('undici');
 
 module.exports = {
     category: 'utility',
     data: new SlashCommandBuilder()
-        .setName('renderhead')
-        .setDescription(`Render the user's head by username! (must be exact)`)
+        .setName('getinfo')
+        .setDescription(`Get user's information by username! (must be exact)`)
         .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
         .addStringOption(option =>
             option.setName('username')
-                .setDescription(`The user's display/name (note display name may not return who you're looking for)`)
+                .setDescription(`The user's username (searching display name may return inaccurate results)`)
                 .setRequired(true)
                 .setMinLength(3)
                 .setMaxLength(20)
@@ -32,6 +32,7 @@ module.exports = {
                 throw new Error(`API responded with status: ${searchResponse.status}`);
             }
 
+            // finding username from api call
             const searchData = await searchResponse.json();
 
             if(!searchData.data || searchData.data.length === 0) {
@@ -56,21 +57,41 @@ module.exports = {
                 });
             }
 
+            // get userid
             const userId = userCheck.id;
 
-            const userCall = await fetch(`https://users.roblox.com/v1/users/${userId}`);
+            // headshot api call
+            const userCall = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=50x50&format=Png&isCircular=false`);
             const userData = await userCall.json();
 
-            if(!userData.created) {
+            if(!userData.data) {
                 return await interaction.editReply({
                     content: "Couldn't turn username into userid.",
                     epheremal: true
                 })
             }
 
-            const date = new Date(userData.created)
+            // userinfo api call
+            const userInfoCall = await fetch(`https://users.roblox.com/v1/users/${userId}`);
+            const userInfoData = await userInfoCall.json();
 
-            return await interaction.editReply(`User "${userData.displayName}" (${userData.name}) joined ROBLOX on ${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}.`)
+            // rap api call
+            const userRapCall = await fetch(`https://api.rolimons.com/players/v1/playerinfo/${userId}`);
+            const userRapData = await userRapCall.json();
+
+            const joinDate = new Date(userInfoData.created)
+            const imageUrl = userData.data[0].imageUrl;
+
+            const embed = new EmbedBuilder()
+                .setTitle(`${userCheck.name}'s Information`)
+                .setImage(imageUrl)
+                .setDescription(`
+                    Display: ${userCheck.displayName}
+                    Join Date: ${joinDate.getMonth() + 1}/${joinDate.getDate()}/${joinDate.getFullYear()}
+                    RAP: ${userRapData.rap} (if null inventory may be private)
+                    `);
+
+            return await interaction.editReply({ embeds: [embed] });
         } catch (error) {
             console.error(error);
             await interaction.editReply({
